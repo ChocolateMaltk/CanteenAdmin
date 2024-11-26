@@ -27,6 +27,7 @@ class InitialActivity : AppCompatActivity() {
 
     private fun isSecretCodeValidated(): Boolean {
         val sharedPreferences: SharedPreferences = getSharedPreferences(sharedPrefName, Context.MODE_PRIVATE)
+        // Default value is false, meaning secret code hasn't been validated yet
         return sharedPreferences.getBoolean(secretCodeKey, false)
     }
 
@@ -34,24 +35,31 @@ class InitialActivity : AppCompatActivity() {
         val builder = AlertDialog.Builder(this)
         builder.setTitle("Enter Secret Code")
 
+        // Set up the input field for the secret code
         val input = android.widget.EditText(this)
         builder.setView(input)
+
+        // Make the dialog non-cancelable
+        builder.setCancelable(false)
 
         builder.setPositiveButton("OK") { dialog, which ->
             val enteredCode = input.text.toString()
 
+            // Check if the entered code matches the secret phrase
             if (enteredCode == settings.secretPhrase) {
                 saveSecretCodeValidation(true)
                 Toast.makeText(applicationContext, "Secret Code Validated", Toast.LENGTH_SHORT).show()
             } else {
-                Toast.makeText(applicationContext, "Incorrect Secret Code", Toast.LENGTH_SHORT).show()
-                finish()
+                // If the code is incorrect, clear the input and show a toast message
+                input.text.clear()  // Clear the EditText
+                Toast.makeText(applicationContext, "Invalid Code! Try again.", Toast.LENGTH_SHORT).show()
+                showSecretCodeDialog() // Show the dialog again
             }
         }
 
         builder.setNegativeButton("Cancel") { dialog, which ->
             Toast.makeText(applicationContext, "Canceled", Toast.LENGTH_SHORT).show()
-            finish()
+            finish()  // Close the activity if canceled
         }
 
         builder.show()
