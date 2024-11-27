@@ -1,0 +1,49 @@
+{
+  "project_info": {
+    "project_number": "1010426228099",
+    "firebase_url": "https://mapprojectuas-default-rtdb.firebaseio.com",
+    "project_id": "mapprojectuas",
+    "storage_bucket": "mapprojectuas.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1010426228099:android:83da1ad6e4c30268821ab6",
+        "android_client_info": {
+          "package_name": "com.example.mapproject"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBAN4R0dBjEdbOjWgbo96yd1P_04JzRCOQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1010426228099:android:1776904bdb97f251821ab6",
+        "android_client_info": {
+          "package_name": "id.librocanteen.adminapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBAN4R0dBjEdbOjWgbo96yd1P_04JzRCOQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
