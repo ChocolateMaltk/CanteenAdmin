@@ -14,7 +14,7 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import com.google.android.material.textfield.TextInputEditText
 
-class BenedictionFragment : Fragment() {
+class DashboardFragment : Fragment() {
 
     // Declare the views
     private lateinit var usernameInput: TextInputEditText
@@ -34,7 +34,7 @@ class BenedictionFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        val view = inflater.inflate(R.layout.fragment_benediction, container, false)
+        val view = inflater.inflate(R.layout.fragment_dashboard, container, false)
 
         // Initialize views
         usernameInput = view.findViewById(R.id.usernameInput)

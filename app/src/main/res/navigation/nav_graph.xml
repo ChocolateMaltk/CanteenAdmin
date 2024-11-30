@@ -12,7 +12,7 @@
         tools:layout="@layout/fragment_login" />
     <fragment
         android:id="@+id/benedictionFragment"
-        android:name="id.librocanteen.adminapp.BenedictionFragment"
+        android:name="id.librocanteen.adminapp.DashboardFragment"
         android:label="fragment_benediction"
-        tools:layout="@layout/fragment_benediction" />
+        tools:layout="@layout/fragment_dashboard" />
 </navigation>
