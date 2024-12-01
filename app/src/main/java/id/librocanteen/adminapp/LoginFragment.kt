@@ -80,6 +80,6 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
     }
 
     private fun navigateToNextScreen() {
-        navController.navigate(R.id.benedictionFragment)
+        navController.navigate(R.id.dashboardFragment)
     }
 }

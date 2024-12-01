@@ -2,6 +2,7 @@
     <!-- Base application theme. -->
     <style name="Base.Theme.UAS_AdminApplication" parent="Theme.Material3.DayNight.NoActionBar">
     </style>
-
-    <style name="Theme.UAS_AdminApplication" parent="Base.Theme.UAS_AdminApplication" />
+    <style name="Theme.UAS_AdminApplication" parent="Base.Theme.UAS_AdminApplication">
+        <item name="colorAccent">@color/accentColor</item>
+    </style>
 </resources>

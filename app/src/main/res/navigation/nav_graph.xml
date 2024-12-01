@@ -11,8 +11,16 @@
         android:label="fragment_login"
         tools:layout="@layout/fragment_login" />
     <fragment
-        android:id="@+id/benedictionFragment"
+        android:id="@+id/dashboardFragment"
         android:name="id.librocanteen.adminapp.DashboardFragment"
         android:label="fragment_benediction"
         tools:layout="@layout/fragment_dashboard" />
+        <action
+            android:id="@+id/action_dashboardFragment_to_vendorListFragment"
+            app:destination="@id/vendorListFragment" />
+    <fragment
+        android:id="@+id/vendorListFragment"
+        android:name="id.librocanteen.adminapp.dashboard.VendorListFragment"
+        android:label="fragment_vendor_list"
+        tools:layout="@layout/fragment_vendor_list" />
 </navigation>

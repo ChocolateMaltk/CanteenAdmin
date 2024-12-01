@@ -7,6 +7,8 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.navigation.NavController
+import androidx.navigation.fragment.findNavController
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.DataSnapshot
@@ -20,6 +22,7 @@ class DashboardFragment : Fragment() {
     private lateinit var usernameInput: TextInputEditText
     private lateinit var passwordInput: TextInputEditText
     private lateinit var registerButton: Button
+    private lateinit var navController: NavController
 
     private val database = FirebaseDatabase.getInstance()
     private val adminsRef: DatabaseReference = database.getReference("admins")
@@ -35,6 +38,7 @@ class DashboardFragment : Fragment() {
     ): View? {
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_dashboard, container, false)
+        navController = findNavController()
 
         // Initialize views
         usernameInput = view.findViewById(R.id.usernameInput)
@@ -63,7 +67,11 @@ class DashboardFragment : Fragment() {
             }
 
             override fun onCancelled(databaseError: DatabaseError) {
-                Toast.makeText(requireContext(), "Error checking admins: ${databaseError.message}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    requireContext(),
+                    "Error checking admins: ${databaseError.message}",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         })
     }
@@ -79,7 +87,11 @@ class DashboardFragment : Fragment() {
                     val password = passwordInput.text.toString().trim()
 
                     if (username.isEmpty() || password.isEmpty()) {
-                        Toast.makeText(requireContext(), "Please fill in both fields.", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(
+                            requireContext(),
+                            "Please fill in both fields.",
+                            Toast.LENGTH_SHORT
+                        ).show()
                     } else {
                         // Save the admin data to Realtime Database
                         val adminData = hashMapOf(
@@ -89,20 +101,33 @@ class DashboardFragment : Fragment() {
 
                         adminsRef.push().setValue(adminData)
                             .addOnSuccessListener {
-                                Toast.makeText(requireContext(), "Admin registered successfully", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(
+                                    requireContext(),
+                                    "Admin registered successfully",
+                                    Toast.LENGTH_SHORT
+                                ).show()
                                 // Proceed to the next screen or logic
                             }
                             .addOnFailureListener { exception ->
-                                Toast.makeText(requireContext(), "Error registering admin: ${exception.message}", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(
+                                    requireContext(),
+                                    "Error registering admin: ${exception.message}",
+                                    Toast.LENGTH_SHORT
+                                ).show()
                             }
                     }
                 } else {
-                    Toast.makeText(requireContext(), "Max admin limit reached.", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), "Max admin limit reached.", Toast.LENGTH_SHORT)
+                        .show()
                 }
             }
 
             override fun onCancelled(databaseError: DatabaseError) {
-                Toast.makeText(requireContext(), "Error checking admin count: ${databaseError.message}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    requireContext(),
+                    "Error checking admin count: ${databaseError.message}",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         })
     }
@@ -113,7 +138,8 @@ class DashboardFragment : Fragment() {
         val password = passwordInput.text.toString().trim()
 
         if (username.isEmpty() || password.isEmpty()) {
-            Toast.makeText(requireContext(), "Please fill in both fields.", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "Please fill in both fields.", Toast.LENGTH_SHORT)
+                .show()
             return
         }
 
@@ -130,9 +156,17 @@ class DashboardFragment : Fragment() {
 
         if (validLogin) {
             Toast.makeText(requireContext(), "Login successful", Toast.LENGTH_SHORT).show()
-            // Go to home or something idk.
+            navigateToNextScreen()
         } else {
             Toast.makeText(requireContext(), "Invalid credentials", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun navigateToNextScreen() {
+        if (isAdded) {
+            requireActivity().runOnUiThread {
+                navController.navigate(R.id.action_dashboardFragment_to_vendorListFragment)
+            }
         }
     }
 }
