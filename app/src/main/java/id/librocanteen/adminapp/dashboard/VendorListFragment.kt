@@ -29,7 +29,7 @@ class VendorListFragment : Fragment() {
     private val vendorList: MutableList<Vendor> = mutableListOf()
     private val database = FirebaseDatabase.getInstance()
     private val settings = Settings()
-    private var vendorCounter = 0
+    var vendorCounter = 0
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -43,7 +43,7 @@ class VendorListFragment : Fragment() {
         vendorRecyclerView = view.findViewById(R.id.vendorList) // RecyclerView in XML layout
         vendorRecyclerView.layoutManager =
             GridLayoutManager(requireContext(), 2) // Grid with 2 columns
-        vendorAdapter = VendorRecyclerViewAdapter(requireContext(), vendorList)
+        vendorAdapter = VendorRecyclerViewAdapter(requireContext(), vendorList, this)
         vendorRecyclerView.adapter = vendorAdapter
 
         val vendorAddButton: FloatingActionButton = view.findViewById(R.id.addNewVendorFAB)
@@ -122,7 +122,7 @@ class VendorListFragment : Fragment() {
         }
     }
 
-    private fun loadVendors() {
+    fun loadVendors() {
         val vendorsRef = database.reference.child("vendors")
 
         vendorsRef.addValueEventListener(object : ValueEventListener {
@@ -133,7 +133,7 @@ class VendorListFragment : Fragment() {
                     vendor?.let { vendorList.add(it) }
                 }
                 vendorAdapter.notifyDataSetChanged()
-                vendorCounter += snapshot.childrenCount.toInt()
+                vendorCounter = snapshot.childrenCount.toInt()
             }
 
             override fun onCancelled(error: DatabaseError) {
@@ -179,13 +179,10 @@ class VendorListFragment : Fragment() {
         // Set the view and title for the dialog
         dialogBuilder.setView(dialogView)
 
-        dialogBuilder.setTitle("Add New Vendor")
-
         val cancelButton = dialogView.findViewById<Button>(R.id.cancelButton)
         val confirmButton = dialogView.findViewById<Button>(R.id.confirmButton)
 
         cancelButton.setOnClickListener {
-            Log.d("VendorListFragment", "Cancel button clicked")
             dialogBuilder.create().dismiss()
         }
 
@@ -225,33 +222,54 @@ class VendorListFragment : Fragment() {
 
     private fun addVendorsToFirebase(amount: Int) {
         val vendorsRef = database.reference.child("vendors")
-        val vendors = mutableListOf<Vendor>()
 
-        for (i in 1..amount) {
-            val vendor = Vendor(
-                vendorNumber = vendorCounter + i,
-                name = "Vendor ${vendorCounter + i}",
-                standNumber = vendorCounter + i,
-                description = "Vendor ${vendorCounter + i} description",
-                profilePictureURL = "",
-                bannerPictureURL = "",
-                menuItems = mutableListOf<MenuItem>()
-            )
-            vendors.add(vendor)
-        }
+        vendorsRef.get().addOnSuccessListener { snapshot ->
+            // Create a set of existing vendor numbers
+            val existingVendorNumbers = snapshot.children
+                .mapNotNull { it.child("vendorNumber").getValue(Int::class.java) }
+                .toMutableSet()
 
-        vendors.forEach { vendor ->
-            vendorsRef.push().setValue(vendor)
-                .addOnSuccessListener {
-                    Log.d("VendorListFragment", "Vendor ${vendor.name} added successfully!")
-                    loadVendors()
+            val vendors = mutableListOf<Vendor>()
+
+            // Find available vendor numbers
+            var currentVendorNumber = 1
+            repeat(amount) {
+                // Find the first available vendor number
+                while (existingVendorNumbers.contains(currentVendorNumber)) {
+                    currentVendorNumber++
                 }
-                .addOnFailureListener {
-                    Log.e(
-                        "VendorListFragment",
-                        "Failed to add vendor ${vendor.name}: ${it.message}"
-                    )
-                }
+
+                val vendor = Vendor(
+                    vendorNumber = currentVendorNumber,
+                    name = "Vendor $currentVendorNumber",
+                    standNumber = currentVendorNumber,
+                    description = "Vendor $currentVendorNumber description",
+                    profilePictureURL = "",
+                    bannerPictureURL = "",
+                    menuItems = mutableListOf<MenuItem>()
+                )
+                vendors.add(vendor)
+
+                // Mark this number as used
+                existingVendorNumbers.add(currentVendorNumber)
+                currentVendorNumber++
+            }
+
+            vendors.forEach { vendor ->
+                vendorsRef.push().setValue(vendor)
+                    .addOnSuccessListener {
+                        Log.d("VendorListFragment", "Vendor ${vendor.name} added successfully!")
+                        loadVendors()
+                    }
+                    .addOnFailureListener {
+                        Log.e(
+                            "VendorListFragment",
+                            "Failed to add vendor ${vendor.name}: ${it.message}"
+                        )
+                    }
+            }
+        }.addOnFailureListener {
+            Log.e("VendorListFragment", "Failed to fetch existing vendors: ${it.message}")
         }
     }
 
