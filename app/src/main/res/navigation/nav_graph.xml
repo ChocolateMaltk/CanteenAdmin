@@ -23,4 +23,12 @@
         android:name="id.librocanteen.adminapp.dashboard.VendorListFragment"
         android:label="fragment_vendor_list"
         tools:layout="@layout/fragment_vendor_list" />
+    <fragment
+        android:id="@+id/vendorDetailsFragment"
+        android:name="id.librocanteen.adminapp.dashboard.VendorDetails"
+        android:label="fragment_vendor_details"
+        tools:layout="@layout/fragment_vendor__details" />
+       <action
+           android:id="@+id/action_dashboardFragment_to_vendorDetailsFragment"
+           app:destination="@+id/vendorDetailsFragment" />
 </navigation>

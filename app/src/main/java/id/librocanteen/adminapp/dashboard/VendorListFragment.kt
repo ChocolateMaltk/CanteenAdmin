@@ -43,7 +43,7 @@ class VendorListFragment : Fragment() {
         vendorRecyclerView = view.findViewById(R.id.vendorList) // RecyclerView in XML layout
         vendorRecyclerView.layoutManager =
             GridLayoutManager(requireContext(), 2) // Grid with 2 columns
-        vendorAdapter = VendorRecyclerViewAdapter(requireContext(), vendorList, this)
+        vendorAdapter = VendorRecyclerViewAdapter(requireContext(), vendorList, this, navController)
         vendorRecyclerView.adapter = vendorAdapter
 
         val vendorAddButton: FloatingActionButton = view.findViewById(R.id.addNewVendorFAB)

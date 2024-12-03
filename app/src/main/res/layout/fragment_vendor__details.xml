@@ -1,6 +1,7 @@
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/vendorDetailsFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="center"
@@ -30,8 +31,7 @@
                     android:id="@+id/bannerImageView"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:scaleType="centerCrop"
-                    android:src="" />
+                    android:scaleType="centerCrop"/>
 
                 <!-- Profile Image -->
                 <ImageView
@@ -43,8 +43,7 @@
                     android:background="@drawable/circular_profile_picture"
                     android:clipToOutline="true"
                     android:elevation="4dp"
-                    android:scaleType="centerCrop"
-                    android:src="" />
+                    android:scaleType="centerCrop" />
             </FrameLayout>
 
             <!-- Vendor Details -->
@@ -101,7 +100,8 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:text="MENU"
-                android:textSize="14sp" />
+                android:textSize="14sp"
+                android:backgroundTint="@color/accentColor"/>
             
             <Button
                 android:id="@+id/enterEditVendorDetails"
@@ -109,6 +109,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:text="@string/editCaps"
+                android:backgroundTint="@color/accentColor"
                 />
 
         </LinearLayout>

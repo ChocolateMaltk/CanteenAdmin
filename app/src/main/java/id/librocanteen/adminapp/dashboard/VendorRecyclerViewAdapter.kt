@@ -2,6 +2,7 @@ package id.librocanteen.adminapp.dashboard
 
 import android.content.Context
 import android.graphics.Color
+import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,6 +11,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.navigation.NavController
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.google.firebase.database.*
@@ -19,7 +21,8 @@ import id.librocanteen.adminapp.dashboard.objects.Vendor
 class VendorRecyclerViewAdapter(
     private val context: Context,
     private val vendors: List<Vendor>,
-    private val vendorListFragment: VendorListFragment
+    private val vendorListFragment: VendorListFragment,
+    private val navController: NavController
 ) : RecyclerView.Adapter<VendorRecyclerViewAdapter.VendorViewHolder>() {
 
     inner class VendorViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -73,7 +76,8 @@ class VendorRecyclerViewAdapter(
                 options
             )
 
-            listView.adapter = object : ArrayAdapter<String>(context, android.R.layout.simple_list_item_1, options) {
+            listView.adapter = object :
+                ArrayAdapter<String>(context, android.R.layout.simple_list_item_1, options) {
                 override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
                     val view = super.getView(position, convertView, parent)
                     val textView = view.findViewById<TextView>(android.R.id.text1)
@@ -87,19 +91,10 @@ class VendorRecyclerViewAdapter(
     }
 
     private fun showVendorDetails(vendor: Vendor) {
-        val detailDialog = AlertDialog.Builder(context)
-            .setTitle(vendor.name)
-            .setMessage(
-                """
-                Stand Number: ${vendor.standNumber}
-                Description: ${vendor.description}
-                Vendor Number: ${vendor.vendorNumber}
-                Menu Items: ${vendor.menuItems.size}
-            """.trimIndent()
-            )
-            .setPositiveButton("Close") { dialog, _ -> dialog.dismiss() }
-            .create()
-        detailDialog.show()
+        val bundle = Bundle().apply {
+            putParcelable("vendor", vendor)
+        }
+        navController.navigate(R.id.action_dashboardFragment_to_vendorDetailsFragment, bundle)
     }
 
     private fun editVendor(vendor: Vendor) {
