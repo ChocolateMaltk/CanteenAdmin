@@ -12,7 +12,7 @@
         android:id="@+id/registerTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Register"
+        android:text="@string/gateway"
         android:textSize="24sp"
         android:textColor="@color/black"
         android:layout_marginTop="32dp"

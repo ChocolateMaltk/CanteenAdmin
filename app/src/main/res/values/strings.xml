@@ -4,11 +4,12 @@
     <string name="register">Register</string>
     <string name="login">Login</string>
     <string name="loginOrRegister">Login / Register</string>
-    <string name="gateway">AdminGateway</string>
+    <string name="gateway">Admin Gateway</string>
     <string name="secretPhraseHint">Please enter the secret phrase first.</string>
     <string name="listTitle">Vendor List</string>
     <string name="vendor_profile_picture">Vendor\'s Profile Picture</string>
     <string name="addVendor">Add new vendor</string>
+    <string name="editCaps">EDIT</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

@@ -132,6 +132,7 @@ class VendorListFragment : Fragment() {
                     val vendor = childSnapshot.getValue<Vendor>()
                     vendor?.let { vendorList.add(it) }
                 }
+                vendorList.sortBy { it.vendorNumber }
                 vendorAdapter.notifyDataSetChanged()
                 vendorCounter = snapshot.childrenCount.toInt()
             }
@@ -274,6 +275,9 @@ class VendorListFragment : Fragment() {
     }
 
     /*
-     * TODO: ADD MORE FUNCTIONS FOR CRUD OPERATIONS.
+     * TODO: ADD THE U IN CRUD.
+     *  - Create fragments for Vendor details, and edit
+     *  - And what not.
+     *  -
      */
 }

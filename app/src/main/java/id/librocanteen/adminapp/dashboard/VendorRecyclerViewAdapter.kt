@@ -1,9 +1,11 @@
 package id.librocanteen.adminapp.dashboard
 
 import android.content.Context
+import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
@@ -45,6 +47,12 @@ class VendorRecyclerViewAdapter(
 
     private fun showVendorOptionsDialog(vendor: Vendor) {
         val options = arrayOf("View Details", "Edit Vendor", "Delete Vendor")
+        val hexColorOptions = arrayOf(
+            Color.parseColor("#A3A3A3"),
+            Color.parseColor("#384FA3"),
+            Color.parseColor("#FF0000")
+        )
+
         val dialog = AlertDialog.Builder(context)
             .setTitle("Vendor Options")
             .setItems(options) { _, which ->
@@ -55,6 +63,26 @@ class VendorRecyclerViewAdapter(
                 }
             }
             .create()
+
+        // Customize dialog list view after creation
+        dialog.setOnShowListener { dialogInterface ->
+            val listView = (dialogInterface as AlertDialog).listView
+            val adapter = ArrayAdapter(
+                context,
+                android.R.layout.simple_list_item_1,
+                options
+            )
+
+            listView.adapter = object : ArrayAdapter<String>(context, android.R.layout.simple_list_item_1, options) {
+                override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
+                    val view = super.getView(position, convertView, parent)
+                    val textView = view.findViewById<TextView>(android.R.id.text1)
+                    textView.setTextColor(hexColorOptions[position])
+                    return view
+                }
+            }
+        }
+
         dialog.show()
     }
 
@@ -127,5 +155,8 @@ class VendorRecyclerViewAdapter(
 
 /*
  *
- * TODO: When a card is clicked, a popup dialog will show up prompting to view, edit or delete a Vendor document.
+ * TODO:
+ *  - Clean up the colors to be consistent and add a Logo
+ *  - Fix the dialog when inserting vendors.
+ *  - Tidy up the logic? Not that it matters though.
  */
