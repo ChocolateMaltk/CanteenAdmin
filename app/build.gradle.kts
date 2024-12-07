@@ -47,6 +47,7 @@ dependencies {
     implementation("com.google.firebase:firebase-analytics-ktx:22.1.2")
     implementation("com.google.firebase:firebase-database:21.0.0")
     implementation("com.google.firebase:firebase-auth:23.1.0")
+    implementation("com.google.firebase:firebase-storage")
 
     // Navigation
     implementation(libs.androidx.navigation.fragment.ktx)

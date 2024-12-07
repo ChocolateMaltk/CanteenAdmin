@@ -22,13 +22,58 @@
         android:id="@+id/vendorListFragment"
         android:name="id.librocanteen.adminapp.dashboard.VendorListFragment"
         android:label="fragment_vendor_list"
-        tools:layout="@layout/fragment_vendor_list" />
+        tools:layout="@layout/fragment_vendor_list" >
+        <action
+            android:id="@+id/action_vendorListFragment_to_vendorDetailsFragment"
+            app:destination="@id/vendorDetailsFragment" />
+        <action
+            android:id="@+id/action_vendorListFragment_to_editVendorDetailsFragment"
+            app:destination="@id/editVendorDetailsFragment" />
+    </fragment>
+
     <fragment
         android:id="@+id/vendorDetailsFragment"
         android:name="id.librocanteen.adminapp.dashboard.VendorDetails"
         android:label="fragment_vendor_details"
-        tools:layout="@layout/fragment_vendor__details" />
-       <action
-           android:id="@+id/action_dashboardFragment_to_vendorDetailsFragment"
-           app:destination="@+id/vendorDetailsFragment" />
+        tools:layout="@layout/fragment_vendor__details" >
+        <argument
+            android:name="vendor"
+            app:argType="id.librocanteen.adminapp.dashboard.objects.Vendor"
+            app:nullable="true"/>
+        <action
+            android:id="@+id/action_vendorDetailsFragment_to_editVendorDetailsFragment"
+            app:destination="@id/editVendorDetailsFragment" />
+        <action
+            android:id="@+id/action_checkVendorsMenu"
+            app:destination="@id/menuItemsList" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/editVendorDetailsFragment"
+        android:name="id.librocanteen.adminapp.dashboard.EditVendorDetails"
+        android:label="fragment_edit_ventor_details"
+        tools:layout="@layout/fragment_edit_vendor_details" >
+        <action
+            android:id="@+id/action_editVendorDetailsFragment_to_vendorListFragment"
+            app:destination="@id/vendorListFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/menuItemsList"
+        android:name="id.librocanteen.adminapp.dashboard.menuItems.MenuItemsListFragment"
+        android:label="MenuItemsList" >
+        <argument
+            android:name="vendor"
+            app:argType="id.librocanteen.adminapp.dashboard.objects.Vendor"
+            app:nullable="true"/>
+        <argument
+            android:name="menuItems"
+            app:argType="id.librocanteen.adminapp.dashboard.objects.MenuItem[]" />
+        <action
+            android:id="@+id/action_checkMenuDetails"
+            app:destination="@id/menuItemDetailFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/menuItemDetailFragment"
+        android:name="id.librocanteen.adminapp.dashboard.menuItems.MenuItemDetailFragment"
+        android:label="MenuItemDetailFragment" />
 </navigation>

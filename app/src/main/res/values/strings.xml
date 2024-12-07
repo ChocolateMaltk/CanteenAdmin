@@ -10,6 +10,31 @@
     <string name="vendor_profile_picture">Vendor\'s Profile Picture</string>
     <string name="addVendor">Add new vendor</string>
     <string name="editCaps">EDIT</string>
+    <string name="cancelBesar">Cancel</string>
+    <string name="saveBesar">Save</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="description">Description</string>
+    <string name="standNumber">St No.</string>
+    <string name="vendorNumberCompact">V-No.</string>
+    <string name="name">Name</string>
+    <string name="editingBesar">Editing</string>
+    <!-- String with parameters -->
+    <string name="editing_vendor_details">Editing: %1$s Details</string>
+    <string name="vendor_details_headline">Viewing: %1$s Details</string>
+    <string name="imageButton_toolTip">This is if you want to edit the image.</string>
+    <string name="MenuItemImageView_toolTip">This is the menu item ImageView.</string>
+    <string name="menuItem_number">Item Number</string>
+    <string name="menuItem_description">Item Description</string>
+    <string name="menuItem_name">Item Name</string>
+    <string name="menuItemStockDecrement_hint">Helpful if you want to reduce your item\'s stock.</string>
+    <string name="stock">Stock</string>
+    <string name="menuItemIncrement_hint">Useful if you want to increase item stock.</string>
+    <string name="item_price">Item Price</string>
+    <string name="save_variant0">Save Changes</string>
+    <string name="actionHint_001">Edit or view details for this particular menu item.</string>
+    <string name="tooltip_000">This is the menu item ImageView.</string>
+    <string name="menuItem_price_rupiah">Rp. %1$s</string>
+    <string name="vendor_menu_title">%1$s\'s Menu</string>
+    <string name="addMenuItem">Add new menu item.</string>
 </resources>

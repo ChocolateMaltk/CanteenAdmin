@@ -41,7 +41,14 @@ class VendorRecyclerViewAdapter(
         val vendor = vendors[position]
         holder.name.text = vendor.name
         holder.description.text = vendor.description
-        Glide.with(context).load(vendor.bannerPictureURL).into(holder.bannerPicture)
+
+        if (!vendor.bannerPictureURL.isNullOrEmpty()){
+            Glide.with(context)
+                .load(vendor.bannerPictureURL)
+                .into(holder.bannerPicture)
+        } else {
+            holder.bannerPicture.setImageResource(R.drawable.placeholder_profile_banner)
+        }
 
         holder.cardView.setOnClickListener {
             showVendorOptionsDialog(vendor)
@@ -94,13 +101,16 @@ class VendorRecyclerViewAdapter(
         val bundle = Bundle().apply {
             putParcelable("vendor", vendor)
         }
-        navController.navigate(R.id.action_dashboardFragment_to_vendorDetailsFragment, bundle)
+        navController.navigate(R.id.action_vendorListFragment_to_vendorDetailsFragment, bundle)
     }
 
     private fun editVendor(vendor: Vendor) {
         AlertDialog.Builder(context)
-        Toast.makeText(context, "Edit ${vendor.name}", Toast.LENGTH_SHORT).show()
-        // Actually make this into a new fragment to edit lolz
+        Toast.makeText(context, "Editing ${vendor.name}...", Toast.LENGTH_SHORT).show()
+        val bundle = Bundle().apply {
+            putParcelable("vendor", vendor)
+        }
+        navController.navigate(R.id.action_vendorListFragment_to_editVendorDetailsFragment, bundle)
     }
 
     private fun deleteVendor(vendor: Vendor) {
@@ -120,7 +130,7 @@ class VendorRecyclerViewAdapter(
                                         vendorListFragment.loadVendors()
                                         Toast.makeText(
                                             context,
-                                            "Vendor ${vendor.name} deleted",
+                                            "Vendor ${vendor.name} deleted.",
                                             Toast.LENGTH_SHORT
                                         ).show()
                                     }

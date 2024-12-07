@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="8dp"
+    android:background="?attr/selectableItemBackground"
+    android:gravity="center_vertical">
+
+    <!-- Item Image -->
+    <ImageView
+        android:id="@+id/menuItemImage"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_marginEnd="8dp"
+        android:scaleType="centerCrop"
+        tools:src="@tools:sample/avatars"
+        android:contentDescription="@string/tooltip_000"/>
+
+    <!-- Item Details -->
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/menuItemName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?attr/textAppearanceSubtitle1"
+            tools:text="Item Name" />
+
+        <TextView
+            android:id="@+id/menuItemDescription"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?attr/textAppearanceBody2"
+            tools:text="Item Description" />
+
+        <TextView
+            android:id="@+id/menuItemPrice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?attr/textAppearanceBody2"
+            tools:text="@string/menuItem_price_rupiah" />
+    </LinearLayout>
+
+    <!-- Action Button -->
+    <ImageButton
+        android:id="@+id/moreActionsForMenuItemButton"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:src="@drawable/gear_coggy_gray_bruh_24"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@string/actionHint_001" />
+</LinearLayout>

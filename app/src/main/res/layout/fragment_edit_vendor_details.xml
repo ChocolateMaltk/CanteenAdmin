@@ -1,22 +1,18 @@
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/vendorDetailsFragment"
+    android:id="@+id/editVendorDetailsFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="center"
     android:orientation="vertical"
-    android:padding="8dp">
+    android:padding="16dp">
 
     <TextView
-        android:id="@+id/vendorDetailsHeadline"
+        android:id="@+id/editVendorDetailsHeadline"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="@color/black"
-        android:layout_gravity="center"
-        android:text="lol"
-        android:textSize="24sp"
-        android:gravity="center" />
+        android:text="@string/editingBesar"
+        android:textSize="24sp" />
 
     <androidx.cardview.widget.CardView
         android:layout_width="wrap_content"
@@ -37,15 +33,15 @@
                 android:layout_height="200dp">
 
                 <!-- Banner Image -->
-                <ImageView
-                    android:id="@+id/bannerImageView"
+                <ImageButton
+                    android:id="@+id/bannerImageButton"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:scaleType="centerCrop"/>
+                    android:scaleType="centerCrop" />
 
                 <!-- Profile Image -->
-                <ImageView
-                    android:id="@+id/profileImageView"
+                <ImageButton
+                    android:id="@+id/profileImageButton"
                     android:layout_width="128dp"
                     android:layout_height="128dp"
                     android:layout_gravity="center_horizontal|top"
@@ -61,23 +57,25 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
-                <TextView
-                    android:id="@+id/nameTextView"
+                <EditText
+                    android:id="@+id/nameEditText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Roti Jamal"
+                    android:inputType="text"
+                    android:text="@string/name"
                     android:textSize="16sp"
                     android:textStyle="bold"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
-                <TextView
-                    android:id="@+id/vendorNumberTextView"
+                <EditText
+                    android:id="@+id/vendorNumberEditText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:inputType="number"
                     android:minWidth="32sp"
-                    android:text="#X"
+                    android:text="@string/vendorNumberCompact"
                     android:textSize="16sp"
                     android:textStyle="bold"
                     app:layout_constraintBottom_toBottomOf="parent"
@@ -86,42 +84,50 @@
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <TextView
-                android:id="@+id/standNumberTextView"
+            <EditText
+                android:id="@+id/standNumberEditText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Stand Number: "
+                android:inputType="number"
+                android:text="@string/standNumber"
                 android:textSize="16sp" />
 
-            <TextView
-                android:id="@+id/descriptionTextView"
+            <EditText
+                android:id="@+id/descriptionEditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_marginVertical="8dp"
                 android:background="@drawable/rounded_textview_background_medium"
+                android:inputType="textMultiLine"
                 android:padding="8dp"
-                android:text="Description"
+                android:scrollHorizontally="false"
+                android:text="@string/description"
                 android:textSize="12sp" />
 
-            <Button
-                android:id="@+id/checkVendorMenu"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:text="View Menu Items"
-                android:textSize="14sp"
-                android:backgroundTint="@color/accentColor"/>
-            
-            <Button
-                android:id="@+id/enterEditVendorDetails"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:text="@string/editCaps"
-                android:backgroundTint="@color/accentColor"
-                />
+                android:layout_marginTop="16dp"
+                android:gravity="center_horizontal"
+                android:orientation="horizontal">
 
+                <Button
+                    android:id="@+id/cancelVendorDetailEdits"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="16dp"
+                    android:backgroundTint="@color/accentColor"
+                    android:text="@string/cancelBesar" />
+
+                <Button
+                    android:id="@+id/saveVendorDetailEdits"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:backgroundTint="@color/accentColor"
+                    android:text="@string/saveBesar"
+                    android:textSize="14sp" />
+            </LinearLayout>
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 </LinearLayout>

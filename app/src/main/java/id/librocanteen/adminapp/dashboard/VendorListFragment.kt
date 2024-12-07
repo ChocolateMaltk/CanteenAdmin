@@ -85,15 +85,21 @@ class VendorListFragment : Fragment() {
         })
     }
 
+    fun generateCustomVendorKey(counter: Int): String {
+        return "V${counter.toString().padStart(2, '0')}"
+    }
+
     // Function you call when there are no initial vendors
     private fun createInitialVendors() {
         val vendorsRef = database.reference.child("vendors")
 
         val initialVendors = listOf<Vendor>(
             Vendor(
-                vendorNumber = 1,
+                nodeKey = "V00",
+                vendorAccessKey = generateVendorAccessKey(),
+                vendorNumber = 0,
                 name = "Mukidin Bakery",
-                standNumber = 1,
+                standNumber = 0,
                 description = "Fresh baked goods and pastries",
                 profilePictureURL = "",
                 bannerPictureURL = "",
@@ -101,14 +107,16 @@ class VendorListFragment : Fragment() {
                     MenuItem(
                         itemName = "Croissant",
                         itemDescription = "Buttery and flaky",
+                        itemStock = 1,
                         itemPrice = 5000
                     )
                 )
             )
         )
 
-        initialVendors.forEach { vendor ->
-            vendorsRef.push().setValue(vendor)
+        initialVendors.forEachIndexed { index, vendor ->
+            val customKey = generateCustomVendorKey(index + 1)
+            vendorsRef.child(customKey).setValue(vendor)
                 .addOnSuccessListener {
                     Log.d("VendorListFragment", "Vendor ${vendor.name} added successfully!")
                     loadVendors()
@@ -177,14 +185,14 @@ class VendorListFragment : Fragment() {
 
         val dialogView = inflater.inflate(R.layout.dialog_add_vendor, null)
 
-        // Set the view and title for the dialog
+        val dialog = dialogBuilder.setView(dialogView).create()
         dialogBuilder.setView(dialogView)
 
         val cancelButton = dialogView.findViewById<Button>(R.id.cancelButton)
         val confirmButton = dialogView.findViewById<Button>(R.id.confirmButton)
 
         cancelButton.setOnClickListener {
-            dialogBuilder.create().dismiss()
+            dialog.dismiss()
         }
 
         confirmButton.setOnClickListener {
@@ -201,7 +209,7 @@ class VendorListFragment : Fragment() {
                         "Vendor(s) added successfully!",
                         Toast.LENGTH_SHORT
                     ).show()
-                    dialogBuilder.create().dismiss()
+                    dialog.dismiss()
                 } else {
                     Toast.makeText(
                         requireContext(),
@@ -213,10 +221,8 @@ class VendorListFragment : Fragment() {
                 Toast.makeText(requireContext(), "Amount cannot be empty.", Toast.LENGTH_SHORT)
                     .show()
             }
+            dialog.dismiss()
         }
-
-        // Create and show the dialog
-        val dialog = dialogBuilder.create()
         dialog.show()
     }
 
@@ -226,40 +232,47 @@ class VendorListFragment : Fragment() {
 
         vendorsRef.get().addOnSuccessListener { snapshot ->
             // Create a set of existing vendor numbers
-            val existingVendorNumbers = snapshot.children
-                .mapNotNull { it.child("vendorNumber").getValue(Int::class.java) }
-                .toMutableSet()
+            val existingKeys = snapshot.children.map { it.key }.toSet()
 
             val vendors = mutableListOf<Vendor>()
 
-            // Find available vendor numbers
-            var currentVendorNumber = 1
+            // Generate new custom keys and ensure they are unique
+            var currentCounter = 1
             repeat(amount) {
-                // Find the first available vendor number
-                while (existingVendorNumbers.contains(currentVendorNumber)) {
-                    currentVendorNumber++
-                }
+                var customKey: String
+                do {
+                    customKey = generateCustomVendorKey(currentCounter)
+                    currentCounter++
+                } while (existingKeys.contains(customKey)) // Ensure key uniqueness
 
                 val vendor = Vendor(
-                    vendorNumber = currentVendorNumber,
-                    name = "Vendor $currentVendorNumber",
-                    standNumber = currentVendorNumber,
-                    description = "Vendor $currentVendorNumber description",
+                    nodeKey = customKey,
+                    vendorAccessKey = generateVendorAccessKey(),
+                    vendorNumber = currentCounter,
+                    name = "Vendor $currentCounter",
+                    standNumber = currentCounter,
+                    description = "Vendor $currentCounter description",
                     profilePictureURL = "",
                     bannerPictureURL = "",
-                    menuItems = mutableListOf<MenuItem>()
+                    menuItems = mutableListOf<MenuItem>(
+                        MenuItem(
+                            itemNumber = 0,
+                            itemName = "Dummy Item",
+                            itemDescription = "Line without a hook",
+                            itemStock = 1000,
+                            itemPrice = 1000,
+                            itemPictureURL = ""
+                        )
+                    )
                 )
                 vendors.add(vendor)
 
-                // Mark this number as used
-                existingVendorNumbers.add(currentVendorNumber)
-                currentVendorNumber++
-            }
-
-            vendors.forEach { vendor ->
-                vendorsRef.push().setValue(vendor)
+                vendorsRef.child(customKey).setValue(vendor) // Use custom key
                     .addOnSuccessListener {
-                        Log.d("VendorListFragment", "Vendor ${vendor.name} added successfully!")
+                        Log.d(
+                            "VendorListFragment",
+                            "Vendor ${vendor.name} added with key $customKey"
+                        )
                         loadVendors()
                     }
                     .addOnFailureListener {
@@ -274,10 +287,21 @@ class VendorListFragment : Fragment() {
         }
     }
 
+
+    fun generateVendorAccessKey(): String {
+        val characters = ('a'..'z') + ('A'..'Z') + ('0'..'9') + listOf(
+            '!', '@', '#', '$', '%', '^', '&', '*', '-', '_', '=', '+'
+        )
+        // Generate a random string of 20 characters
+        val randomString = (1..20).map { characters.random() }.joinToString("")
+
+        // Split the string into chunks of 4 characters and join with dashes
+        val formattedString = randomString.chunked(4).joinToString("-")
+        return formattedString
+    }
+
     /*
-     * TODO: ADD THE U IN CRUD.
-     *  - Create fragments for Vendor details, and edit
-     *  - And what not.
-     *  -
+     * TODO:
+     *  - Add a logo
      */
 }

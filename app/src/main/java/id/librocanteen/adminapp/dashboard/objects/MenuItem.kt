@@ -4,16 +4,18 @@ import android.os.Parcel
 import android.os.Parcelable
 
 data class MenuItem(
-    val itemNumber: Int = 0,
-    val itemName: String = "",
-    val itemDescription: String = "",
-    val itemPrice: Int = 0,
-    val itemPictureURL: String = ""
+    var itemNumber: Int = 0,
+    var itemName: String = "",
+    var itemDescription: String = "",
+    var itemStock: Int = 0,
+    var itemPrice: Int = 0,
+    var itemPictureURL: String = ""
 ) : Parcelable {
     constructor(parcel: Parcel): this(
         parcel.readInt(),
         parcel.readString() ?: "",
         parcel.readString() ?: "",
+        parcel.readInt(),
         parcel.readInt(),
         parcel.readString() ?: ""
     )
@@ -23,6 +25,7 @@ data class MenuItem(
         dest.writeString(itemName)
         dest.writeString(itemDescription)
         dest.writeInt(itemPrice)
+        dest.writeInt(itemStock)
         dest.writeString(itemPictureURL)
     }
 
