@@ -54,7 +54,7 @@ class MenuItemsListFragment : Fragment() {
         recyclerView = view.findViewById(R.id.menuItemsRecyclerView)
         recyclerView.layoutManager = LinearLayoutManager(context)
 
-        menuItemAdapter = MenuItemAdapter(menuItems)
+        menuItemAdapter = MenuItemAdapter(menuItems, Vendor(vendorKey ?: "", vendorName ?: ""))
         recyclerView.adapter = menuItemAdapter
 
         // Dynamically set title
@@ -100,6 +100,4 @@ class MenuItemsListFragment : Fragment() {
             })
         }
     }
-
-
 }

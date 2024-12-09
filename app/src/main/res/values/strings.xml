@@ -10,6 +10,7 @@
     <string name="vendor_profile_picture">Vendor\'s Profile Picture</string>
     <string name="addVendor">Add new vendor</string>
     <string name="editCaps">EDIT</string>
+    <string name="cancelCaps">CANCEL</string>
     <string name="cancelBesar">Cancel</string>
     <string name="saveBesar">Save</string>
     <!-- TODO: Remove or change this placeholder text -->
@@ -37,4 +38,5 @@
     <string name="menuItem_price_rupiah">Rp. %1$s</string>
     <string name="vendor_menu_title">%1$s\'s Menu</string>
     <string name="addMenuItem">Add new menu item.</string>
+    <string name="delete_variant0">DELETE ITEM</string>
 </resources>

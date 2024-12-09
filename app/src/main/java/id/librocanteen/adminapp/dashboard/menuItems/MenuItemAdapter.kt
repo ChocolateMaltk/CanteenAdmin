@@ -13,8 +13,12 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import id.librocanteen.adminapp.R
 import id.librocanteen.adminapp.dashboard.objects.MenuItem
+import id.librocanteen.adminapp.dashboard.objects.Vendor
 
-class MenuItemAdapter(private var menuItems: List<MenuItem>) :
+class MenuItemAdapter(
+    private var menuItems: List<MenuItem>,
+    private val vendor: Vendor
+) :
     RecyclerView.Adapter<MenuItemAdapter.MenuItemViewHolder>() {
 
     class MenuItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -22,7 +26,7 @@ class MenuItemAdapter(private var menuItems: List<MenuItem>) :
         val itemPriceTextView: TextView = itemView.findViewById(R.id.menuItemPrice)
         val itemDescriptionTextView: TextView = itemView.findViewById(R.id.menuItemDescription)
         val itemImageView: ImageView = itemView.findViewById(R.id.menuItemImage)
-        val menuItemCard : LinearLayout = itemView.findViewById(R.id.menuItemCard)
+        val menuItemCard: LinearLayout = itemView.findViewById(R.id.menuItemCard)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MenuItemViewHolder {
@@ -53,12 +57,15 @@ class MenuItemAdapter(private var menuItems: List<MenuItem>) :
         }
 
         holder.menuItemCard.setOnClickListener {
-            val bundle = bundleOf("menuItem" to menuItem)
+            val bundle = bundleOf(
+                "menuItem" to menuItem,
+                "vendor" to vendor
+            )
             it.findNavController().navigate(R.id.menuItemDetailFragment, bundle)
         }
     }
 
-    fun fetchItems(newMenuItems : List<MenuItem>) {
+    fun fetchItems(newMenuItems: List<MenuItem>) {
         Log.d("MenuItemAdapter: ", "Received ${newMenuItems.size} items.")
         menuItems = newMenuItems
         notifyDataSetChanged()
