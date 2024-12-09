@@ -9,6 +9,8 @@ import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.navigation.NavController
+import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputLayout
@@ -35,9 +37,13 @@ class MenuItemDetailFragment : Fragment() {
     private lateinit var itemStock_textView: TextInputLayout
     private lateinit var itemPrice_textView: TextInputLayout
 
+    // NavController
+    private lateinit var navController: NavController
+
     // Firebase RTDB & Storage
     private val databaseReference = FirebaseDatabase.getInstance().reference
     private val storageReference = FirebaseStorage.getInstance().reference
+
 
     // Toggle for Edit Mode.
     private var isEditMode = false
@@ -62,6 +68,8 @@ class MenuItemDetailFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_menu_item_detail, container, false)
+
+        navController = findNavController()
 
         // Initialize all views
         initializeViews(view)
@@ -90,6 +98,10 @@ class MenuItemDetailFragment : Fragment() {
         btnSave = view.findViewById(R.id.btnSave)
         btnDecreaseStock = view.findViewById(R.id.btnDecreaseStock)
         btnIncreaseStock = view.findViewById(R.id.btnIncreaseStock)
+
+        btnDelete.setOnClickListener {
+            deleteMenuItemFromFirebase()
+        }
     }
 
     private fun populateViews() {
@@ -109,8 +121,10 @@ class MenuItemDetailFragment : Fragment() {
             itemDescription_textView.editText?.setText(menuItem.itemDescription)
             itemStock_textView.editText?.setText(menuItem.itemStock.toString())
             itemPrice_textView.editText?.setText(menuItem.itemPrice.toString())
+
         }
     }
+
 
     private fun setupEditModeToggle() {
         btnToggleEdit.setOnClickListener {
@@ -215,22 +229,24 @@ class MenuItemDetailFragment : Fragment() {
                     databaseReference
                         .child("vendors")
                         .child(currentVendor?.nodeKey.toString())
-                        .child("menu_items")
+                        .child("menuItems")
                         .child(menuItem.itemNumber.toString())
                         .removeValue()
                         .addOnSuccessListener {
-                            // Optional: Delete associated image from Firebase Storage
-                            menuItem.itemPictureURL?.let { imageUrl ->
-                                storageReference.storage.getReferenceFromUrl(imageUrl).delete()
-                            }
+                            // Optional: Delete associated image from Firebase Storage IMPLEMENT THIS LATER LOL
+                            // menuItem.itemPictureURL?.let { imageUrl ->
+                            //     storageReference.storage.getReferenceFromUrl(imageUrl).delete()
+                            // }
+                            Log.d("MenuItemDetailFragment", "Item deleted successfully.")
 
                             Toast.makeText(
                                 requireContext(),
-                                "Item deleted successfully",
+                                "Item deleted successfully!",
                                 Toast.LENGTH_SHORT
                             ).show()
                             // Navigate back or refresh the list
                             parentFragmentManager.popBackStack()
+                            navController.navigateUp()
                         }
                         .addOnFailureListener { exception ->
                             Toast.makeText(
