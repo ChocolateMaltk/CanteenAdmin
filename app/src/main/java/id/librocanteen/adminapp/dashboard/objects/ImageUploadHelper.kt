@@ -1,6 +1,7 @@
 package id.librocanteen.adminapp.dashboard.objects
 
 import android.net.Uri
+import android.util.Log
 import android.widget.ImageView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
@@ -19,7 +20,6 @@ class ImageUploadHelper(private val fragment: Fragment) {
     ) = fragment.registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         uri?.let {
             onImageSelected(it)
-            onImageDisplayRequired(it, ImageView(fragment.requireContext()))
         }
     }
 
@@ -31,7 +31,7 @@ class ImageUploadHelper(private val fragment: Fragment) {
 
     fun uploadImage(
         uri: Uri,
-        vendorNumber: Int,
+        vendorNodeKey: String,
         imageType: String,
         existingUrl: String? = null,
         onSuccess: (String) -> Unit,
@@ -43,7 +43,7 @@ class ImageUploadHelper(private val fragment: Fragment) {
             onSuccess = {
                 // After successful deletion (or if no existing image), proceed with upload
                 val imageRef = storageReference.child(
-                    "images/vendors/$vendorNumber/${imageType}Pictures/${UUID.randomUUID()}"
+                    "images/vendors/$vendorNodeKey/${imageType}Pictures/${UUID.randomUUID()}"
                 )
                 imageRef.putFile(uri)
                     .continueWithTask { task ->
@@ -71,11 +71,22 @@ class ImageUploadHelper(private val fragment: Fragment) {
         onSuccess: () -> Unit = {},
         onFailure: (Exception) -> Unit = {}
     ) {
-        existingUrl?.let { url ->
-            val existingImageRef = FirebaseStorage.getInstance().getReferenceFromUrl(url)
-            existingImageRef.delete()
-                .addOnSuccessListener { onSuccess() }
-                .addOnFailureListener { onFailure(it) }
+        // Only attempt to delete if the URL is not null and not empty
+        if (!existingUrl.isNullOrBlank()) {
+            try {
+                val existingImageRef =
+                    FirebaseStorage.getInstance().getReferenceFromUrl(existingUrl)
+                existingImageRef.delete()
+                    .addOnSuccessListener { onSuccess() }
+                    .addOnFailureListener { onFailure(it) }
+            } catch (e: Exception) {
+                // Handle cases where the URL might be invalid
+                Log.e("ImageUploadHelper", "Invalid image URL: $existingUrl", e)
+                onFailure(e)
+            }
+        } else {
+            // If no existing URL, just call onSuccess
+            onSuccess()
         }
     }
 }

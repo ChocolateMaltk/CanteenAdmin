@@ -2,7 +2,7 @@ package id.librocanteen.adminapp.dashboard.objects
 
 import android.os.Parcel
 import android.os.Parcelable
-import kotlin.random.Random
+import com.google.firebase.database.Exclude
 
 data class Vendor(
     var nodeKey: String? = null, // Firebase node key
@@ -16,20 +16,16 @@ data class Vendor(
     val menuItems: MutableList<MenuItem> = mutableListOf()
 ) : Parcelable {
     constructor(parcel: Parcel) : this(
-        parcel.readString(),
-        parcel.readString(),
-        parcel.readInt(),
-        parcel.readString() ?: "",
-        parcel.readInt(),
-        parcel.readString() ?: "",
-        parcel.readString() ?: "",
-        parcel.readString() ?: "",
-        parcel.createTypedArrayList(MenuItem.CREATOR) ?: mutableListOf()
+        vendorNumber = parcel.readInt(), // vendorNumber
+        name = parcel.readString() ?: "", // name
+        standNumber = parcel.readInt(), // standNumber
+        description = parcel.readString() ?: "", // description
+        profilePictureURL = parcel.readString() ?: "", // profilePictureURL
+        bannerPictureURL = parcel.readString() ?: "", // bannerPictureURL
+        menuItems = parcel.createTypedArrayList(MenuItem.CREATOR) ?: mutableListOf() // menuItems
     )
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
-        parcel.writeString(nodeKey) // Write the firebase node key.
-        parcel.writeString(vendorAccessKey)
         parcel.writeInt(vendorNumber)
         parcel.writeString(name)
         parcel.writeInt(standNumber)
@@ -51,3 +47,4 @@ data class Vendor(
         }
     }
 }
+

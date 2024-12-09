@@ -57,7 +57,6 @@ class VendorListFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         fetchVendors()
     }
 
@@ -66,16 +65,7 @@ class VendorListFragment : Fragment() {
 
         vendorsRef.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                if (!snapshot.exists()) {
-                    Toast.makeText(
-                        requireContext(),
-                        "No vendors found. Creating a dummy vendor.",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    createInitialVendors()
-                } else {
-                    loadVendors()
-                }
+                loadVendors()
             }
 
             override fun onCancelled(error: DatabaseError) {
@@ -89,52 +79,24 @@ class VendorListFragment : Fragment() {
         return "V${counter.toString().padStart(2, '0')}"
     }
 
-    // Function you call when there are no initial vendors
-    private fun createInitialVendors() {
-        val vendorsRef = database.reference.child("vendors")
-
-        val initialVendors = listOf<Vendor>(
-            Vendor(
-                nodeKey = "V00",
-                vendorAccessKey = generateVendorAccessKey(),
-                vendorNumber = 0,
-                name = "Mukidin Bakery",
-                standNumber = 0,
-                description = "Fresh baked goods and pastries",
-                profilePictureURL = "",
-                bannerPictureURL = "",
-                menuItems = mutableListOf(
-                    MenuItem(
-                        itemName = "Croissant",
-                        itemDescription = "Buttery and flaky",
-                        itemStock = 1,
-                        itemPrice = 5000
-                    )
-                )
-            )
-        )
-
-        initialVendors.forEachIndexed { index, vendor ->
-            val customKey = generateCustomVendorKey(index + 1)
-            vendorsRef.child(customKey).setValue(vendor)
-                .addOnSuccessListener {
-                    Log.d("VendorListFragment", "Vendor ${vendor.name} added successfully!")
-                    loadVendors()
-                }
-                .addOnFailureListener {
-                    Log.e(
-                        "VendorListFragment",
-                        "Failed to add vendor ${vendor.name}: ${it.message}"
-                    )
-                }
-        }
+    fun generateMenuItemNodeKey(counter: Int): String {
+        return "M${counter.toString().padStart(2, '0')}"
     }
+
 
     fun loadVendors() {
         val vendorsRef = database.reference.child("vendors")
 
         vendorsRef.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
+                if (snapshot.childrenCount < 1) {
+                    Toast.makeText(
+                        requireContext(),
+                        "No vendors available. Go make some!",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    return
+                }
                 vendorList.clear()
                 for (childSnapshot in snapshot.children) {
                     val vendor = childSnapshot.getValue<Vendor>()
@@ -237,16 +199,34 @@ class VendorListFragment : Fragment() {
             val vendors = mutableListOf<Vendor>()
 
             // Generate new custom keys and ensure they are unique
-            var currentCounter = 1
+            var currentCounter = 0
             repeat(amount) {
-                var customKey: String
+                var customVendorKey: String
+                var menuItemKeys = mutableListOf<String>()
                 do {
-                    customKey = generateCustomVendorKey(currentCounter)
                     currentCounter++
-                } while (existingKeys.contains(customKey)) // Ensure key uniqueness
+                    customVendorKey = generateCustomVendorKey(currentCounter)
+                    for (i in 0 until 3) { // Generate 3 menu item keys
+                        val customMenuItemKey = generateMenuItemNodeKey(i)
+                        menuItemKeys.add(customMenuItemKey)
+                    }
+                } while (existingKeys.contains(customVendorKey)) // Ensure vendor key uniqueness
+
+                val literallyOne = 1
+
+                val menuItems = mutableListOf<MenuItem>()
+                val testMenuItem = MenuItem(
+                    nodeKey = "M01",
+                    itemNumber = literallyOne,
+                    itemName = "Menu Item $literallyOne",
+                    itemDescription = "Description for menu item $literallyOne",
+                    itemStock = 100,
+                    itemPrice = 500,
+                    itemPictureURL = ""
+                )
 
                 val vendor = Vendor(
-                    nodeKey = customKey,
+                    nodeKey = customVendorKey,
                     vendorAccessKey = generateVendorAccessKey(),
                     vendorNumber = currentCounter,
                     name = "Vendor $currentCounter",
@@ -254,24 +234,16 @@ class VendorListFragment : Fragment() {
                     description = "Vendor $currentCounter description",
                     profilePictureURL = "",
                     bannerPictureURL = "",
-                    menuItems = mutableListOf<MenuItem>(
-                        MenuItem(
-                            itemNumber = 0,
-                            itemName = "Dummy Item",
-                            itemDescription = "Line without a hook",
-                            itemStock = 1000,
-                            itemPrice = 1000,
-                            itemPictureURL = ""
-                        )
-                    )
+                    menuItems = menuItems
                 )
                 vendors.add(vendor)
 
-                vendorsRef.child(customKey).setValue(vendor) // Use custom key
+                // Use the custom vendor key as the key in the database
+                vendorsRef.child(customVendorKey).setValue(vendor)
                     .addOnSuccessListener {
                         Log.d(
                             "VendorListFragment",
-                            "Vendor ${vendor.name} added with key $customKey"
+                            "Vendor ${vendor.name} added with key $customVendorKey"
                         )
                         loadVendors()
                     }
@@ -281,12 +253,13 @@ class VendorListFragment : Fragment() {
                             "Failed to add vendor ${vendor.name}: ${it.message}"
                         )
                     }
+
+                addMenuItemToVendor(customVendorKey, testMenuItem)
             }
         }.addOnFailureListener {
             Log.e("VendorListFragment", "Failed to fetch existing vendors: ${it.message}")
         }
     }
-
 
     fun generateVendorAccessKey(): String {
         val characters = ('a'..'z') + ('A'..'Z') + ('0'..'9') + listOf(
@@ -299,6 +272,35 @@ class VendorListFragment : Fragment() {
         val formattedString = randomString.chunked(4).joinToString("-")
         return formattedString
     }
+
+    fun addMenuItemToVendor(vendorKey: String, menuItem: MenuItem) {
+        // Reference to the vendor's menuItems node (list of menu items)
+        val menuItemsRef = FirebaseDatabase.getInstance().reference
+            .child("vendors")
+            .child(vendorKey)
+            .child("menuItems")
+
+        // Get the current list of menu items from Firebase
+        menuItemsRef.get().addOnSuccessListener { snapshot ->
+            val currentMenuItems = snapshot.getValue<List<MenuItem>>()?.toMutableList() ?: mutableListOf()
+
+            // Add the new menu item to the list
+            currentMenuItems.add(menuItem)
+
+            // Set the updated list of menu items back to Firebase
+            menuItemsRef.setValue(currentMenuItems)
+                .addOnSuccessListener {
+                    Log.d("MenuItemsListFragment", "Menu item ${menuItem.itemName} added successfully!")
+                }
+                .addOnFailureListener { exception ->
+                    Log.e("MenuItemsListFragment", "Failed to add menu item ${menuItem.itemName}: ${exception.message}")
+                }
+        }.addOnFailureListener { exception ->
+            Log.e("MenuItemsListFragment", "Failed to fetch current menu items: ${exception.message}")
+        }
+    }
+
+
 
     /*
      * TODO:

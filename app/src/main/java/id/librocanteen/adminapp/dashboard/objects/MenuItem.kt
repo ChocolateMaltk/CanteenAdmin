@@ -4,6 +4,7 @@ import android.os.Parcel
 import android.os.Parcelable
 
 data class MenuItem(
+    var nodeKey: String = "",
     var itemNumber: Int = 0,
     var itemName: String = "",
     var itemDescription: String = "",
@@ -12,6 +13,7 @@ data class MenuItem(
     var itemPictureURL: String = ""
 ) : Parcelable {
     constructor(parcel: Parcel): this(
+        parcel.readString() ?: "",
         parcel.readInt(),
         parcel.readString() ?: "",
         parcel.readString() ?: "",
@@ -21,6 +23,7 @@ data class MenuItem(
     )
 
     override fun writeToParcel(dest: Parcel, flags: Int) {
+        dest.writeString(nodeKey)
         dest.writeInt(itemNumber)
         dest.writeString(itemName)
         dest.writeString(itemDescription)

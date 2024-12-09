@@ -5,7 +5,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.core.os.bundleOf
+import androidx.navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import id.librocanteen.adminapp.R
@@ -19,6 +22,7 @@ class MenuItemAdapter(private var menuItems: List<MenuItem>) :
         val itemPriceTextView: TextView = itemView.findViewById(R.id.menuItemPrice)
         val itemDescriptionTextView: TextView = itemView.findViewById(R.id.menuItemDescription)
         val itemImageView: ImageView = itemView.findViewById(R.id.menuItemImage)
+        val menuItemCard : LinearLayout = itemView.findViewById(R.id.menuItemCard)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MenuItemViewHolder {
@@ -31,7 +35,7 @@ class MenuItemAdapter(private var menuItems: List<MenuItem>) :
         val menuItem = menuItems[position]
 
         holder.itemNameTextView.text = menuItem.itemName
-        holder.itemPriceTextView.text = "Rp ${menuItem.itemPrice}"
+        holder.itemPriceTextView.text = "Rp. ${menuItem.itemPrice}"
         holder.itemDescriptionTextView.text = menuItem.itemDescription
 
         // Load image using Glide
@@ -46,6 +50,11 @@ class MenuItemAdapter(private var menuItems: List<MenuItem>) :
             Glide.with(holder.itemImageView.context)
                 .load(R.drawable.placeholder_profile_picture)
                 .into(holder.itemImageView)
+        }
+
+        holder.menuItemCard.setOnClickListener {
+            val bundle = bundleOf("menuItem" to menuItem)
+            it.findNavController().navigate(R.id.menuItemDetailFragment, bundle)
         }
     }
 

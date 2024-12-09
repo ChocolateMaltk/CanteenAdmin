@@ -11,6 +11,7 @@
         android:text="@string/vendor_menu_title"
         android:textColor="@color/black"
         android:textSize="24sp"
+        android:layout_marginBottom="16dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

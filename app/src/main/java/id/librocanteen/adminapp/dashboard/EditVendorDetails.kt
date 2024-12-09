@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -17,7 +18,7 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
-import com.google.android.gms.tasks.Task
+import com.bumptech.glide.Glide
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
@@ -105,6 +106,22 @@ class EditVendorDetails : Fragment() {
             headline.text = getString(R.string.editing_vendor_details, it.name)
         }
 
+        if (vendor?.bannerPictureURL.isNullOrEmpty()) {
+            bannerPicButton.setImageResource(R.drawable.placeholder_profile_banner)
+        } else {
+            Glide.with(requireContext())
+                .load(vendor?.bannerPictureURL)
+                .into(bannerPicButton)
+        }
+
+        if (vendor?.profilePictureURL.isNullOrEmpty()) {
+            profilePicButton.setImageResource(R.drawable.placeholder_profile_picture)
+        } else {
+            Glide.with(requireContext())
+                .load(vendor?.profilePictureURL)
+                .into(profilePicButton)
+        }
+
         profilePicButton.setOnClickListener {
             resultProfilePicLauncher.launch("image/*")
         }
@@ -136,6 +153,7 @@ class EditVendorDetails : Fragment() {
                 }
 
                 navController.navigate(R.id.action_editVendorDetailsFragment_to_vendorListFragment)
+
             }
         }
 
@@ -180,13 +198,16 @@ class EditVendorDetails : Fragment() {
     private fun updateVendorInDatabase(updatedVendor: Vendor) {
         val databaseReference = FirebaseDatabase.getInstance().reference.child("vendors")
 
+        // Query to find the vendor by vendorNumber
         databaseReference.orderByChild("vendorNumber")
-            .equalTo(updatedVendor.vendorNumber.toDouble())
+            .equalTo(updatedVendor.vendorNumber.toDouble()) // Matching vendorNumber
             .addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     if (snapshot.exists()) {
                         for (childSnapshot in snapshot.children) {
+                            // Get the unique key (nodeKey) of the vendor
                             val uniqueKey = childSnapshot.key
+                            Log.d("Unique Key: ", uniqueKey.toString())
                             if (uniqueKey != null) {
                                 // Create a map of the fields to update
                                 val updates = mapOf(
@@ -198,7 +219,7 @@ class EditVendorDetails : Fragment() {
                                     "bannerPictureURL" to updatedVendor.bannerPictureURL
                                 )
 
-                                // Perform partial update
+                                // Perform the update using the vendor's unique key
                                 databaseReference.child(uniqueKey)
                                     .updateChildren(updates)
                                     .addOnSuccessListener {
@@ -223,14 +244,14 @@ class EditVendorDetails : Fragment() {
     }
 
     private fun uploadImagesAndUpdateVendor(existingVendor: Vendor) {
-        val uploadTasks = mutableListOf<Task<Uri>>()
         var updatedVendor = existingVendor
 
         selectedProfileImageUri?.let { uri ->
             imageUploadHelper.uploadImage(
                 uri = uri,
-                vendorNumber = existingVendor.vendorNumber,
+                vendorNodeKey = existingVendor.nodeKey ?: "", // Use null-safe call
                 imageType = "profile",
+                existingUrl = existingVendor.profilePictureURL, // Optional: pass existing URL for deletion
                 onSuccess = { url ->
                     updatedVendor = updatedVendor.copy(profilePictureURL = url)
                     updateVendorInDatabase(updatedVendor)
@@ -244,8 +265,9 @@ class EditVendorDetails : Fragment() {
         selectedBannerImageUri?.let { uri ->
             imageUploadHelper.uploadImage(
                 uri = uri,
-                vendorNumber = existingVendor.vendorNumber,
+                vendorNodeKey = existingVendor.nodeKey ?: "", // Use null-safe call
                 imageType = "banner",
+                existingUrl = existingVendor.bannerPictureURL, // Optional: pass existing URL for deletion
                 onSuccess = { url ->
                     updatedVendor = updatedVendor.copy(bannerPictureURL = url)
                     updateVendorInDatabase(updatedVendor)
@@ -273,7 +295,7 @@ class EditVendorDetails : Fragment() {
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == 1001) {
-            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            if(grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             } else {
                 showToast("Permission denied")
             }

@@ -6,6 +6,7 @@
     android:orientation="horizontal"
     android:padding="8dp"
     android:background="?attr/selectableItemBackground"
+    android:id="@+id/menuItemCard"
     android:gravity="center_vertical">
 
     <!-- Item Image -->
@@ -46,13 +47,4 @@
             android:textAppearance="?attr/textAppearanceBody2"
             tools:text="@string/menuItem_price_rupiah" />
     </LinearLayout>
-
-    <!-- Action Button -->
-    <ImageButton
-        android:id="@+id/moreActionsForMenuItemButton"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:src="@drawable/gear_coggy_gray_bruh_24"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        android:contentDescription="@string/actionHint_001" />
 </LinearLayout>
