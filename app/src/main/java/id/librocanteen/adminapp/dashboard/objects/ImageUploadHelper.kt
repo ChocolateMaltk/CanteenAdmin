@@ -29,6 +29,103 @@ class ImageUploadHelper(private val fragment: Fragment) {
             .into(imageView)
     }
 
+    fun uploadMenuItemImage(
+        uri: Uri,
+        vendorNodeKey: String,
+        menuItemNumber: String,
+        existingUrl: String? = null,
+        onSuccess: (String) -> Unit,
+        onFailure: (Exception) -> Unit
+    ) {
+        // Create a fixed image name instead of UUID to prevent multiple files
+        val imageName = "item_image.jpg"
+
+        // Create a fixed path for the menu item image
+        val imageRef = storageReference.child(
+            "images/vendors/$vendorNodeKey/menuItems/$menuItemNumber/$imageName"
+        )
+
+        // First delete the existing image if any
+        deleteMenuItemImage(
+            vendorNodeKey = vendorNodeKey,
+            menuItemNumber = menuItemNumber,
+            existingUrl = existingUrl,
+            onSuccess = {
+                // Upload the new image
+                imageRef.putFile(uri)
+                    .continueWithTask { task ->
+                        if (!task.isSuccessful) {
+                            task.exception?.let { throw it }
+                        }
+                        imageRef.downloadUrl
+                    }
+                    .addOnSuccessListener { downloadUri ->
+                        onSuccess(downloadUri.toString())
+                    }
+                    .addOnFailureListener { exception ->
+                        onFailure(exception)
+                    }
+            },
+            onFailure = { exception ->
+                onFailure(exception)
+            }
+        )
+    }
+
+    fun deleteMenuItemImage(
+        vendorNodeKey: String? = null,
+        menuItemNumber: String? = null,
+        existingUrl: String? = null,
+        onSuccess: () -> Unit = {},
+        onFailure: (Exception) -> Unit = {}
+    ) {
+        try {
+            if (existingUrl.isNullOrBlank()) {
+                onSuccess()
+                return
+            }
+
+            // Try to get reference from existing URL first
+            val imageRef = if (vendorNodeKey != null && menuItemNumber != null) {
+                // If we have vendor and item info, use the direct path
+                storageReference.child("images/vendors/$vendorNodeKey/menuItems/$menuItemNumber")
+            } else {
+                // Otherwise try to get reference from URL
+                storage.getReferenceFromUrl(existingUrl).parent
+            }
+
+            // Delete the entire menu item folder
+            imageRef?.listAll()
+                ?.addOnSuccessListener { listResult ->
+                    // If folder is empty or doesn't exist
+                    if (listResult.items.isEmpty()) {
+                        onSuccess()
+                        return@addOnSuccessListener
+                    }
+
+                    // Delete all files in the folder
+                    var deletedCount = 0
+                    listResult.items.forEach { itemRef ->
+                        itemRef.delete().addOnCompleteListener { task ->
+                            deletedCount++
+                            if (deletedCount == listResult.items.size) {
+                                // All files deleted
+                                onSuccess()
+                            }
+                        }
+                    }
+                }
+                ?.addOnFailureListener { exception ->
+                    Log.e("ImageUploadHelper", "Error listing files: ${exception.message}")
+                    onFailure(exception)
+                }
+        } catch (e: Exception) {
+            Log.e("ImageUploadHelper", "Error deleting image: ${e.message}")
+            onFailure(e)
+        }
+    }
+
+    // General purpose image upload method (for other types of images)
     fun uploadImage(
         uri: Uri,
         vendorNodeKey: String,
@@ -37,13 +134,13 @@ class ImageUploadHelper(private val fragment: Fragment) {
         onSuccess: (String) -> Unit,
         onFailure: (Exception) -> Unit
     ) {
-        // First, delete the existing image if it exists
+        val imageName = "image_${System.currentTimeMillis()}.jpg"
+
         deleteExistingImage(
             existingUrl,
             onSuccess = {
-                // After successful deletion (or if no existing image), proceed with upload
                 val imageRef = storageReference.child(
-                    "images/vendors/$vendorNodeKey/${imageType}Pictures/${UUID.randomUUID()}"
+                    "images/vendors/$vendorNodeKey/${imageType}/$imageName"
                 )
                 imageRef.putFile(uri)
                     .continueWithTask { task ->
@@ -60,32 +157,27 @@ class ImageUploadHelper(private val fragment: Fragment) {
                     }
             },
             onFailure = { exception ->
-                // If deletion fails, call the failure callback
                 onFailure(exception)
             }
         )
     }
 
-    fun deleteExistingImage(
+    private fun deleteExistingImage(
         existingUrl: String?,
         onSuccess: () -> Unit = {},
         onFailure: (Exception) -> Unit = {}
     ) {
-        // Only attempt to delete if the URL is not null and not empty
         if (!existingUrl.isNullOrBlank()) {
             try {
-                val existingImageRef =
-                    FirebaseStorage.getInstance().getReferenceFromUrl(existingUrl)
+                val existingImageRef = storage.getReferenceFromUrl(existingUrl)
                 existingImageRef.delete()
                     .addOnSuccessListener { onSuccess() }
                     .addOnFailureListener { onFailure(it) }
             } catch (e: Exception) {
-                // Handle cases where the URL might be invalid
                 Log.e("ImageUploadHelper", "Invalid image URL: $existingUrl", e)
                 onFailure(e)
             }
         } else {
-            // If no existing URL, just call onSuccess
             onSuccess()
         }
     }

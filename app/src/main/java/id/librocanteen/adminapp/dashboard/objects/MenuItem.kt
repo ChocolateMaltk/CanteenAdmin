@@ -3,6 +3,7 @@ package id.librocanteen.adminapp.dashboard.objects
 import android.os.Parcel
 import android.os.Parcelable
 
+
 data class MenuItem(
     var nodeKey: String = "",
     var itemNumber: Int = 0,

@@ -14,6 +14,7 @@ import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import id.librocanteen.adminapp.R
+import id.librocanteen.adminapp.dashboard.objects.MenuItem
 import id.librocanteen.adminapp.dashboard.objects.Vendor
 
 class VendorDetails : Fragment() {
@@ -35,6 +36,7 @@ class VendorDetails : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_vendor__details, container, false)
+        val menuItems = mutableListOf<MenuItem>()
         navController = findNavController()
 
         // Initialize UI elements
@@ -116,22 +118,20 @@ class VendorDetails : Fragment() {
 
     fun redirectToMenu() {
         val vendor = arguments?.getParcelable<Vendor>("vendor")
-        val menuItemsArray = vendor?.menuItems
-            ?.map { it as Parcelable }
-            ?.toTypedArray()
+        // Convert the list of MenuItem to an array of Parcelable
+        val menuItemsArray = vendor?.menuItems?.toTypedArray() // Convert List<MenuItem> to Array<MenuItem>
 
-        val bundle = bundleOf(
-            "vendor" to vendor,
-            "vendorName" to vendor?.name,
-            "vendorKey" to vendor?.nodeKey,
-            "menuItems" to menuItemsArray
-        )
+        val bundle = Bundle().apply {
+            putParcelable("vendor", vendor) // Pass the vendor
+            putString("vendorName", vendor?.name) // Pass the vendor name
+            putString("vendorKey", vendor?.nodeKey) // Pass the vendor key
+            putParcelableArray("menuItems", menuItemsArray) // Pass the array of MenuItem
+        }
 
         navController.navigate(
             R.id.action_checkVendorsMenu,
             bundle
         )
     }
-
 }
 

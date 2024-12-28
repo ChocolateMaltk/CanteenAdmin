@@ -1,5 +1,6 @@
 package id.librocanteen.adminapp.dashboard.menuItems
 
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -17,10 +18,16 @@ import com.google.android.material.textfield.TextInputLayout
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.storage.FirebaseStorage
 import id.librocanteen.adminapp.R
+import id.librocanteen.adminapp.dashboard.objects.ImageUploadHelper
 import id.librocanteen.adminapp.dashboard.objects.MenuItem
 import id.librocanteen.adminapp.dashboard.objects.Vendor
 
 class MenuItemDetailFragment : Fragment() {
+
+    // ImageUploadHelper
+    private lateinit var imageUploadHelper: ImageUploadHelper
+    private var selectedImageUri: Uri? = null
+
     // UI Components
     private lateinit var itemImage_imageView: ImageView
     private lateinit var btnEditImage: ImageButton
@@ -54,6 +61,7 @@ class MenuItemDetailFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+
         currentMenuItem = arguments?.getParcelable<MenuItem>("menuItem")
         currentVendor = arguments?.getParcelable<Vendor>("vendor")
 
@@ -70,6 +78,7 @@ class MenuItemDetailFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_menu_item_detail, container, false)
 
         navController = findNavController()
+        imageUploadHelper = ImageUploadHelper(this)
 
         // Initialize all views
         initializeViews(view)
@@ -99,6 +108,20 @@ class MenuItemDetailFragment : Fragment() {
         btnDecreaseStock = view.findViewById(R.id.btnDecreaseStock)
         btnIncreaseStock = view.findViewById(R.id.btnIncreaseStock)
 
+        val imagePickerLauncher = imageUploadHelper.createImagePickerLauncher(
+            onImageSelected = { uri ->
+                selectedImageUri = uri
+                imageUploadHelper.displayImage(uri, itemImage_imageView)
+            },
+            onImageDisplayRequired = { uri, imageView ->
+                imageUploadHelper.displayImage(uri, imageView)
+            }
+        )
+
+        btnEditImage.setOnClickListener{
+            imagePickerLauncher.launch("image/*")
+        }
+
         btnDelete.setOnClickListener {
             deleteMenuItemFromFirebase()
         }
@@ -122,9 +145,9 @@ class MenuItemDetailFragment : Fragment() {
             itemStock_textView.editText?.setText(menuItem.itemStock.toString())
             itemPrice_textView.editText?.setText(menuItem.itemPrice.toString())
 
+            itemNumber_textView.editText?.isEnabled = false
         }
     }
-
 
     private fun setupEditModeToggle() {
         btnToggleEdit.setOnClickListener {
@@ -153,17 +176,19 @@ class MenuItemDetailFragment : Fragment() {
     }
 
     private fun updateUIForEditMode() {
-        // Toggle edit mode for all input fields
+        // Toggle edit mode for all input fields except item number
         val editFields = listOf(
             itemName_textView,
             itemDescription_textView,
             itemStock_textView,
             itemPrice_textView
         )
-
         editFields.forEach { field ->
             field.editText?.isEnabled = isEditMode
         }
+
+        // Keep item number always disabled
+        itemNumber_textView.editText?.isEnabled = false
 
         // Visibility of edit-related components
         btnEditImage.visibility = if (isEditMode) View.VISIBLE else View.GONE
@@ -181,24 +206,53 @@ class MenuItemDetailFragment : Fragment() {
 
     private fun saveChangesToFirebase() {
         currentMenuItem?.let { menuItem ->
-            // Prepare updated menu item
-            val updatedMenuItem = MenuItem(
-                itemNumber = menuItem.itemNumber,
-                itemName = itemName_textView.editText?.text.toString(),
-                itemDescription = itemDescription_textView.editText?.text.toString(),
-                itemStock = itemStock_textView.editText?.text.toString().toIntOrNull() ?: 0,
-                itemPrice = itemPrice_textView.editText?.text.toString().toIntOrNull() ?: 0,
-                itemPictureURL = menuItem.itemPictureURL // Preserve existing image URL
-            )
+            // If new image is selected, upload it first
+            selectedImageUri?.let { uri ->
+                imageUploadHelper.uploadMenuItemImage(
+                    uri = uri,
+                    vendorNodeKey = currentVendor?.nodeKey.toString(),
+                    menuItemNumber = menuItem.itemNumber.toString(),
+                    existingUrl = menuItem.itemPictureURL,
+                    onSuccess = { downloadUrl ->
+                        // Save menu item with new image URL
+                        saveMenuItemToDatabase(menuItem, downloadUrl)
+                    },
+                    onFailure = { exception ->
+                        Toast.makeText(
+                            requireContext(),
+                            "Failed to upload image: ${exception.localizedMessage}",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+                )
+            } ?: run {
+                // No new image selected, save with existing URL
+                saveMenuItemToDatabase(menuItem, menuItem.itemPictureURL)
+            }
+        }
+    }
 
-            // Update in Firebase Realtime Database
-            databaseReference
-                .child("vendors")
-                .child(currentVendor?.nodeKey.toString())
-                .child("menuItems")
-                .child(menuItem.itemNumber.toString())
-                .setValue(updatedMenuItem)
-                .addOnSuccessListener {
+    // Helper method to save menu item to database
+    private fun saveMenuItemToDatabase(menuItem: MenuItem, imageUrl: String?) {
+        // Create the updated menu item using the ORIGINAL item number
+        val updatedMenuItem = MenuItem(
+            itemNumber = menuItem.itemNumber,  // Keep the original item number
+            itemName = itemName_textView.editText?.text.toString(),
+            itemDescription = itemDescription_textView.editText?.text.toString(),
+            itemStock = itemStock_textView.editText?.text.toString().toIntOrNull() ?: 0,
+            itemPrice = itemPrice_textView.editText?.text.toString().toIntOrNull() ?: 0,
+            itemPictureURL = imageUrl ?: ""
+        )
+
+        // Update the item at its original location
+        databaseReference
+            .child("vendors")
+            .child(currentVendor?.nodeKey.toString())
+            .child("menuItems")
+            .child(menuItem.itemNumber.toString())
+            .setValue(updatedMenuItem)
+            .addOnSuccessListener {
+                if (isAdded && context != null) {
                     Toast.makeText(
                         requireContext(),
                         "Item updated successfully",
@@ -207,57 +261,75 @@ class MenuItemDetailFragment : Fragment() {
                     isEditMode = false
                     currentMenuItem = updatedMenuItem
                     updateUIForEditMode()
+                    selectedImageUri = null
                 }
-                .addOnFailureListener { exception ->
+            }
+            .addOnFailureListener { exception ->
+                if (isAdded && context != null) {
                     Toast.makeText(
                         requireContext(),
                         "Failed to update item: ${exception.localizedMessage}",
                         Toast.LENGTH_LONG
                     ).show()
                 }
-        }
+            }
     }
 
     private fun deleteMenuItemFromFirebase() {
         currentMenuItem?.let { menuItem ->
-            // Show confirmation dialog (recommended)
             androidx.appcompat.app.AlertDialog.Builder(requireContext())
                 .setTitle("Delete Menu Item")
                 .setMessage("Are you sure you want to delete this menu item?")
                 .setPositiveButton("Delete") { _, _ ->
-                    // Delete from Firebase Realtime Database
-                    databaseReference
-                        .child("vendors")
-                        .child(currentVendor?.nodeKey.toString())
-                        .child("menuItems")
-                        .child(menuItem.itemNumber.toString())
-                        .removeValue()
-                        .addOnSuccessListener {
-                            // Optional: Delete associated image from Firebase Storage IMPLEMENT THIS LATER LOL
-                            // menuItem.itemPictureURL?.let { imageUrl ->
-                            //     storageReference.storage.getReferenceFromUrl(imageUrl).delete()
-                            // }
-                            Log.d("MenuItemDetailFragment", "Item deleted successfully.")
-
+                    // Use ImageUploadHelper to delete the image and folder
+                    imageUploadHelper.deleteMenuItemImage(
+                        existingUrl = menuItem.itemPictureURL,
+                        onSuccess = {
+                            // After image is deleted, delete from database
+                            deleteMenuItemFromDatabase(menuItem)
+                        },
+                        onFailure = { exception ->
                             Toast.makeText(
                                 requireContext(),
-                                "Item deleted successfully!",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                            // Navigate back or refresh the list
-                            parentFragmentManager.popBackStack()
-                            navController.navigateUp()
-                        }
-                        .addOnFailureListener { exception ->
-                            Toast.makeText(
-                                requireContext(),
-                                "Failed to delete item: ${exception.localizedMessage}",
+                                "Failed to delete image: ${exception.localizedMessage}",
                                 Toast.LENGTH_LONG
                             ).show()
                         }
+                    )
                 }
                 .setNegativeButton("Cancel", null)
                 .show()
         }
+    }
+
+    // Helper method to delete menu item from database
+    private fun deleteMenuItemFromDatabase(menuItem: MenuItem) {
+        databaseReference
+            .child("vendors")
+            .child(currentVendor?.nodeKey.toString())
+            .child("menuItems")
+            .child(menuItem.itemNumber.toString())
+            .removeValue()
+            .addOnSuccessListener {
+                if (isAdded && context != null) {
+                    Log.d("MenuItemDetailFragment", "Item deleted successfully.")
+                    Toast.makeText(
+                        requireContext(),
+                        "Item deleted successfully!",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    parentFragmentManager.popBackStack()
+                    navController.navigateUp()
+                }
+            }
+            .addOnFailureListener { exception ->
+                if (isAdded && context != null) {
+                    Toast.makeText(
+                        requireContext(),
+                        "Failed to delete item: ${exception.localizedMessage}",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            }
     }
 }

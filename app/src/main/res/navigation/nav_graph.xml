@@ -40,6 +40,9 @@
             android:name="vendor"
             app:argType="id.librocanteen.adminapp.dashboard.objects.Vendor"
             app:nullable="true" />
+        <argument
+            android:name="menuItems"
+            app:argType="id.librocanteen.adminapp.dashboard.objects.MenuItem[]" />
         <action
             android:id="@+id/action_vendorDetailsFragment_to_editVendorDetailsFragment"
             app:destination="@id/editVendorDetailsFragment" />

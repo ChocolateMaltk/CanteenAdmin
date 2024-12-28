@@ -212,18 +212,18 @@ class VendorListFragment : Fragment() {
                     }
                 } while (existingKeys.contains(customVendorKey)) // Ensure vendor key uniqueness
 
-                val literallyOne = 1
+//                val literallyOne = 1
 
                 val menuItems = mutableListOf<MenuItem>()
-                val testMenuItem = MenuItem(
-                    nodeKey = "M01",
-                    itemNumber = literallyOne,
-                    itemName = "Menu Item $literallyOne",
-                    itemDescription = "Description for menu item $literallyOne",
-                    itemStock = 100,
-                    itemPrice = 500,
-                    itemPictureURL = ""
-                )
+//                val testMenuItem = MenuItem(
+//                    nodeKey = "M01",
+//                    itemNumber = literallyOne,
+//                    itemName = "Menu Item $literallyOne",
+//                    itemDescription = "Description for menu item $literallyOne",
+//                    itemStock = 100,
+//                    itemPrice = 500,
+//                    itemPictureURL = ""
+//                )
 
                 val vendor = Vendor(
                     nodeKey = customVendorKey,
@@ -254,7 +254,8 @@ class VendorListFragment : Fragment() {
                         )
                     }
 
-                addMenuItemToVendor(customVendorKey, testMenuItem)
+//                addMenuItemToVendor(customVendorKey, testMenuItem)
+                addMenuItemToVendor(customVendorKey)
             }
         }.addOnFailureListener {
             Log.e("VendorListFragment", "Failed to fetch existing vendors: ${it.message}")
@@ -282,7 +283,8 @@ class VendorListFragment : Fragment() {
 
         // Get the current list of menu items from Firebase
         menuItemsRef.get().addOnSuccessListener { snapshot ->
-            val currentMenuItems = snapshot.getValue<List<MenuItem>>()?.toMutableList() ?: mutableListOf()
+            val currentMenuItems =
+                snapshot.getValue<List<MenuItem>>()?.toMutableList() ?: mutableListOf()
 
             // Add the new menu item to the list
             currentMenuItems.add(menuItem)
@@ -290,20 +292,40 @@ class VendorListFragment : Fragment() {
             // Set the updated list of menu items back to Firebase
             menuItemsRef.setValue(currentMenuItems)
                 .addOnSuccessListener {
-                    Log.d("MenuItemsListFragment", "Menu item ${menuItem.itemName} added successfully!")
+                    Log.d(
+                        "MenuItemsListFragment",
+                        "Menu item ${menuItem.itemName} added successfully!"
+                    )
                 }
                 .addOnFailureListener { exception ->
-                    Log.e("MenuItemsListFragment", "Failed to add menu item ${menuItem.itemName}: ${exception.message}")
+                    Log.e(
+                        "MenuItemsListFragment",
+                        "Failed to add menu item ${menuItem.itemName}: ${exception.message}"
+                    )
                 }
         }.addOnFailureListener { exception ->
-            Log.e("MenuItemsListFragment", "Failed to fetch current menu items: ${exception.message}")
+            Log.e(
+                "MenuItemsListFragment",
+                "Failed to fetch current menu items: ${exception.message}"
+            )
         }
     }
 
+    fun addMenuItemToVendor(vendorKey: String) {
+        // Reference to the vendor's menuItems node (list of menu items)
+        val menuItemsRef = FirebaseDatabase.getInstance().reference
+            .child("vendors")
+            .child(vendorKey)
+            .child("menuItems")
 
-
-    /*
-     * TODO:
-     *  - Add a logo
-     */
+        // Get the current list of menu items from Firebase
+        menuItemsRef.get().addOnSuccessListener { snapshot ->
+            val currentMenuItems =
+                snapshot.getValue<List<MenuItem>>()?.toMutableList() ?: mutableListOf()
+        }
+    }
+ /*
+ * TODO:
+ *  -Add a logo
+ */
 }
