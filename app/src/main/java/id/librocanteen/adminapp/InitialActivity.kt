@@ -10,6 +10,8 @@ import com.google.android.material.navigation.NavigationView
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.NavController
+import androidx.navigation.fragment.NavHostFragment
 import id.librocanteen.adminapp.dashboard.objects.SharedViewModel
 
 class InitialActivity : AppCompatActivity() {
@@ -18,7 +20,7 @@ class InitialActivity : AppCompatActivity() {
     private lateinit var navigationView: NavigationView
     private lateinit var toolbar: Toolbar
     private lateinit var sharedViewModel: SharedViewModel
-
+    private lateinit var navController: NavController
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,6 +36,9 @@ class InitialActivity : AppCompatActivity() {
             }
         })
         setContentView(R.layout.activity_initial)
+
+        val navHostFragment = supportFragmentManager.findFragmentById(R.id.fragmentContainerView) as NavHostFragment
+        navController = navHostFragment.navController
 
         drawerLayout = findViewById(R.id.drawerLayout)
         navigationView = findViewById(R.id.navigationView)
@@ -70,7 +75,9 @@ class InitialActivity : AppCompatActivity() {
     }
 
     private fun logout() {
-        // Handle logout logic
+        sharedViewModel.isUserValidated.value = false
+        navController.navigate(R.id.action_global_loginFragment)
+        drawerLayout.closeDrawer(GravityCompat.START)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

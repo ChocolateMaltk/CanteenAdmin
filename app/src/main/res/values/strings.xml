@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">UAS_AdminApplication</string>
+    <string name="app_name">Libro Canteen Admin App</string>
     <string name="formal_app_name">Libro Canteen Admin Application</string>
     <string name="register">Register</string>
     <string name="login">Login</string>
@@ -15,6 +15,7 @@
     <string name="saveBesar">Save</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+
     <string name="description">Description</string>
     <string name="standNumber">St No.</string>
     <string name="vendorNumberCompact">V-No.</string>
