@@ -39,4 +39,6 @@
     <string name="vendor_menu_title">%1$s\'s Menu</string>
     <string name="addMenuItem">Add new menu item.</string>
     <string name="delete_variant0">DELETE ITEM</string>
+    <string name="sidebar_username">Admin</string>
+    <string name="profile_picture_desc">Profile Picture</string>
 </resources>

@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import com.google.firebase.database.DatabaseReference
@@ -15,6 +16,7 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import com.google.android.material.textfield.TextInputEditText
+import id.librocanteen.adminapp.dashboard.objects.SharedViewModel
 
 class DashboardFragment : Fragment() {
 
@@ -23,6 +25,7 @@ class DashboardFragment : Fragment() {
     private lateinit var passwordInput: TextInputEditText
     private lateinit var registerButton: Button
     private lateinit var navController: NavController
+    private lateinit var sharedViewModel: SharedViewModel
 
     private val database = FirebaseDatabase.getInstance()
     private val adminsRef: DatabaseReference = database.getReference("admins")
@@ -30,6 +33,7 @@ class DashboardFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        sharedViewModel = ViewModelProvider(requireActivity())[SharedViewModel::class.java]
     }
 
     override fun onCreateView(
@@ -165,6 +169,7 @@ class DashboardFragment : Fragment() {
     private fun navigateToNextScreen() {
         if (isAdded) {
             requireActivity().runOnUiThread {
+                sharedViewModel.isUserValidated.value = true
                 navController.navigate(R.id.action_dashboardFragment_to_vendorListFragment)
             }
         }
