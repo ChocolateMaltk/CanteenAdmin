@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.database.*
 import id.librocanteen.adminapp.R
@@ -92,12 +93,18 @@ class ChannelRecyclerViewAdapter(
             .addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     val customUserId = snapshot.getValue(String::class.java)
-                    if (customUserId != null) {
-                        // If customUserId is found, use it to fetch user details
-                        fetchUserNameByUserId(customUserId, holder)
-                    } else {
-                        holder.userNameTextView.text = "User ID not found"
-                        Log.e("ChannelAdapter", "Custom userId not found for Firebase UID: $firebaseUid")
+                    when (customUserId) {
+                        null -> {
+                            holder.userNameTextView.text = "You"
+                            Log.e("ChannelAdapter", "Custom userId not found for Firebase UID: $firebaseUid")
+                        }
+                        "Admin" -> {
+                            holder.userNameTextView.text = "You"
+                        }
+                        else -> {
+                            // If customUserId is neither null nor "Admin", fetch user details
+                            fetchUserNameByUserId(customUserId, holder)
+                        }
                     }
                 }
 
@@ -113,6 +120,15 @@ class ChannelRecyclerViewAdapter(
         val channel = channels[position]
 
         Log.d("ChannelAdapter", "Binding view for channel: ${channel.channelName}")
+
+        // Setup click listener on the channel item
+        holder.itemView.setOnClickListener {
+            val fragment = Chat.newInstance(channel.channelName)  // Pass channel ID or data to fragment
+            val fragmentTransaction = (it.context as AppCompatActivity).supportFragmentManager.beginTransaction()
+            fragmentTransaction.replace(R.id.fragmentContainerView, fragment)  // Assuming you have a container for fragments
+            fragmentTransaction.addToBackStack(null)  // Optional: Add to back stack for navigation
+            fragmentTransaction.commit()
+        }
 
         // Fetch the last message content and timestamp for the channel
         fetchLastMessageDetails(channel, holder)

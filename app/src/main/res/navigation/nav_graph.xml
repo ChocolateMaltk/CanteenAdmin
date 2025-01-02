@@ -98,4 +98,10 @@
         android:id="@+id/channelListFragment"
         android:name="id.librocanteen.adminapp.dashboard.ChannelList"
         android:label="ChannelListFragment" />
+    <fragment
+        android:id="@+id/messagesChannelFragment"
+        android:name="id.librocanteen.adminapp.dashboard.Chat"
+        android:label="MessagesChannelFragment">
+        <!-- Might need to pass params to this fragment -->
+    </fragment>
 </navigation>
