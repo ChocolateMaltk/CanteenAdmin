@@ -234,6 +234,8 @@ class VendorListFragment : Fragment() {
                     description = "Vendor $currentCounter description",
                     profilePictureURL = "",
                     bannerPictureURL = "",
+                    isSelling = true,
+                    boundToUser = "",
                     menuItems = menuItems
                 )
                 vendors.add(vendor)
@@ -324,8 +326,4 @@ class VendorListFragment : Fragment() {
                 snapshot.getValue<List<MenuItem>>()?.toMutableList() ?: mutableListOf()
         }
     }
- /*
- * TODO:
- *  -Add a logo
- */
 }

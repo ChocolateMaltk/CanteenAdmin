@@ -157,11 +157,3 @@ class VendorRecyclerViewAdapter(
 
     override fun getItemCount(): Int = vendors.size
 }
-
-/*
- *
- * TODO:
- *  - Clean up the colors to be consistent and add a Logo
- *  - Fix the dialog when inserting vendors.
- *  - Tidy up the logic? Not that it matters though.
- */

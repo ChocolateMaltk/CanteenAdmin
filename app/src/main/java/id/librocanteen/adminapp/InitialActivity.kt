@@ -54,7 +54,6 @@ class InitialActivity : AppCompatActivity() {
             when (menuItem.itemId) {
                 R.id.nav_home -> navigateToHome()
                 R.id.nav_messages -> navigateToMessages()
-                R.id.nav_whoIs -> navigateToWhoIs()
                 R.id.nav_logout -> logout()
             }
             drawerLayout.closeDrawer(GravityCompat.START)
@@ -63,15 +62,11 @@ class InitialActivity : AppCompatActivity() {
     }
 
     private fun navigateToHome() {
-        // Navigation logic
+        navController.navigate(R.id.action_global_HomeFragment)
     }
 
     private fun navigateToMessages() {
-        // Navigation logic
-    }
-
-    private fun navigateToWhoIs() {
-        // Navigation logic
+        navController.navigate(R.id.action_global_messagesChannelsFragment)
     }
 
     private fun logout() {

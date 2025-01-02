@@ -10,6 +10,16 @@
         app:destination="@id/loginFragment"
         app:popUpTo="@id/nav_graph"
         app:popUpToInclusive="true" />
+    <action
+        android:id="@+id/action_global_HomeFragment"
+        app:destination="@id/vendorListFragment"
+        app:popUpTo="@id/nav_graph"
+        app:popUpToInclusive="true" />
+    <action
+        android:id="@+id/action_global_messagesChannelsFragment"
+        app:destination="@id/channelListFragment"
+        app:popUpTo="@navigation/nav_graph"
+        app:popUpToInclusive="true"/>
     <fragment
         android:id="@+id/loginFragment"
         android:name="id.librocanteen.adminapp.LoginFragment"
@@ -84,4 +94,8 @@
         android:id="@+id/menuItemDetailFragment"
         android:name="id.librocanteen.adminapp.dashboard.menuItems.MenuItemDetailFragment"
         android:label="MenuItemDetailFragment" />
+    <fragment
+        android:id="@+id/channelListFragment"
+        android:name="id.librocanteen.adminapp.dashboard.ChannelList"
+        android:label="ChannelListFragment" />
 </navigation>

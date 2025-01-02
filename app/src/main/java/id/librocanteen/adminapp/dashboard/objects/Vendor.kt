@@ -13,6 +13,8 @@ data class Vendor(
     val description: String = "",
     val profilePictureURL: String = "",
     val bannerPictureURL: String = "",
+    val isSelling: Boolean = true,
+    val boundToUser: String = "",
     val menuItems: MutableList<MenuItem> = mutableListOf()
 ) : Parcelable {
     constructor(parcel: Parcel) : this(
@@ -32,6 +34,8 @@ data class Vendor(
         parcel.writeString(description)
         parcel.writeString(profilePictureURL)
         parcel.writeString(bannerPictureURL)
+        parcel.writeString(isSelling.toString())
+        parcel.writeString(boundToUser)
         parcel.writeTypedList(menuItems)
     }
 
